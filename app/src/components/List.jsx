@@ -12,6 +12,7 @@ export default class List extends Component {
     }
 
     componentDidMount(){
+        
         axios.get('http://localhost:3002/estudantes/list') //express
         //axios.get('http://localhost:3001/estudantes') //json-server
         .then(
