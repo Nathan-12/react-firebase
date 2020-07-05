@@ -37,7 +37,7 @@ class List extends Component {
                     }
                 )//push de estudantes
             }//doc
-        )//forEach
+        )//for Each
         this.setState({estudantes:estudantes})
     }
 
