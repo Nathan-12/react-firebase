@@ -1,9 +1,16 @@
 import React, { Component } from 'react'
-import axios from 'axios'
 
 import TableRow from './TableRow'
 
-export default class List extends Component {
+import FirebaseContext from '../utils/FirebaseContext'
+
+const ListPage = () => (
+    <FirebaseContext.Consumer>
+        { contexto => <List firebase={contexto}/>}
+    </FirebaseContext.Consumer>
+)
+
+class List extends Component {
 
     constructor(props){
         super(props)
@@ -12,21 +19,26 @@ export default class List extends Component {
     }
 
     componentDidMount(){
-        
-        axios.get('http://localhost:3002/estudantes/list') //express
-        //axios.get('http://localhost:3001/estudantes') //json-server
-        .then(
-            (res)=>{
-                //console.log(res.data)
-                this.setState({estudantes:res.data})
-                //console.log(this.state.estudantes)
-            }
-        )
-        .catch(
-            (error)=>{
-                console.log(error)
-            }
-        )
+        this.ref = this.props.firebase.getFirestore().collection('estudantes')
+        this.ref.onSnapshot(this.popularEstudantes.bind(this))
+    }
+
+    popularEstudantes(query){
+        let estudantes = []
+        query.forEach(
+            (doc) => {
+                const {nome, curso, IRA} = doc.data()
+                estudantes.push(
+                    {
+                        _id: doc.id,
+                        nome,
+                        curso,
+                        IRA
+                    }
+                )//push de estudantes
+            }//doc
+        )//forEach
+        this.setState({estudantes:estudantes})
     }
 
     montarTabela(){
@@ -75,3 +87,5 @@ export default class List extends Component {
         )
     }
 }
+
+export default ListPage
