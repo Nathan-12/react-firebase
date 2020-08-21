@@ -47,7 +47,8 @@ class List extends Component {
             (est,i)=>{
                 return <TableRow estudante={est} 
                                  key={i} 
-                                 apagarElementoPorId={this.apagarElementoPorId}/>
+                                 apagarElementoPorId={this.apagarElementoPorId}
+                                 firebase={this.props.firebase}/>
             }
         )
     }
