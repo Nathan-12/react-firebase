@@ -6,27 +6,28 @@ import FirebaseContext from '../utils/FirebaseContext'
 
 const ListPage = () => (
     <FirebaseContext.Consumer>
-        { contexto => <List firebase={contexto}/>}
+        {contexto => <List firebase={contexto} />}
     </FirebaseContext.Consumer>
 )
 
 class List extends Component {
 
-    constructor(props){
+    constructor(props) {
         super(props)
-        this.state = {estudantes:[]}
+        this.state = { estudantes: [], loading: false }
     }
 
-    componentDidMount(){
+    componentDidMount() { 
+        this.setState({loading: true})
         this.ref = this.props.firebase.getFirestore().collection('estudantes')
         this.ref.onSnapshot(this.popularEstudantes.bind(this))
     }
 
-    popularEstudantes(query){
+    popularEstudantes(query) {
         let estudantes = []
         query.forEach(
             (doc) => {
-                const {nome, curso, IRA} = doc.data()
+                const { nome, curso, IRA } = doc.data()
                 estudantes.push(
                     {
                         _id: doc.id,
@@ -37,18 +38,32 @@ class List extends Component {
                 )//push de estudantes
             }//doc
         )//for Each
-        this.setState({estudantes:estudantes})
+        this.setState({ estudantes: estudantes, loading: false })
     }
 
-    montarTabela(){
-        if(!this.state.estudantes) return
+    montarTabela() {
+        if (!this.state.estudantes) return
         return this.state.estudantes.map(
-            (est,i)=>{
-                return <TableRow estudante={est} 
-                                 key={i} 
-                                 firebase={this.props.firebase}/>
+            (est, i) => {
+                return <TableRow estudante={est}
+                    key={i}
+                    firebase={this.props.firebase} />
             }
         )
+    }
+
+    gerarConteudo() {
+        if (this.state.loading) {
+            return (
+                <tr>
+                    <td colSpan='6'>
+                        <div className="spinner-border text-primary" role="status">
+                            <span className="sr-only">Loading...</span>
+                        </div>
+                    </td>
+                </tr>
+            )
+        } return this.montarTabela()
     }
 
 
@@ -67,7 +82,7 @@ class List extends Component {
                         </tr>
                     </thead>
                     <tbody>
-                        {this.montarTabela()}
+                        {this.gerarConteudo()}
                     </tbody>
 
                 </table>

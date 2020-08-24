@@ -1,7 +1,14 @@
 import React, { Component } from 'react'
-import axios from 'axios'
 
-export default class Edit extends Component {
+import FirebaseContext from '../utils/FirebaseContext'
+
+const EditPage = (props) => (
+    <FirebaseContext.Consumer>
+        { contexto => <Edit firebase={contexto} id={props.match.params.id}/>}
+    </FirebaseContext.Consumer>
+)
+
+class Edit extends Component {
 
     constructor(props) {
         super(props)
@@ -15,18 +22,17 @@ export default class Edit extends Component {
     }
 
     componentDidMount(){
-        //console.log("ID RECEBIDO: " + this.props.match.params.id)
-        axios.get('http://localhost:3002/estudantes/retrieve/'+this.props.match.params.id) //express
-        //axios.get('http://localhost:3001/estudantes/'+this.props.match.params.id) //json-server
-        .then((res)=>{
-            //console.log(res.data)
-            this.setState({
-                nome:res.data.nome,
-                curso:res.data.curso,
-                IRA:res.data.IRA
-            })
-        })
-        .catch(error=>console.log(error))
+        this.props.firebase.getFirestore().collection('estudantes').doc(this.props.id).get()
+        .then(
+            (doc) => {
+                this.setState({
+                    nome: doc.data().nome,
+                    curso: doc.data().curso,
+                    IRA: doc.data().IRA
+                })
+            }
+        )
+        .catch(error => console.log(error))
     }
 
     setNome(e) {
@@ -44,17 +50,18 @@ export default class Edit extends Component {
     onSubmit(e){
         e.preventDefault()
         
-        const estudanteEditado = {nome:this.state.nome, 
-                                  curso:this.state.curso,
-                                  IRA:this.state.IRA}
-        axios.put('http://localhost:3002/estudantes/update/'+this.props.match.params.id, estudanteEditado) //express
-        //axios.put('http://localhost:3001/estudantes/'+this.props.match.params.id, estudanteEditado) //json-server
-        .then(
-            (res)=>{
-                this.props.history.push('/list');    
+        this.props.firebase.getFirestore().collection('estudantes').doc(this.props.id).set(
+            {
+                nome: this.state.nome,
+                curso: this.state.curso,
+                IRA: this.state.IRA
             }
         )
-        .catch(error=>console.log(error))
+        .then(
+            () =>  console.log("Atualização de dados feita com sucesso."),
+        )
+        .catch(error => console.log(error))
+        
         
     }
 
@@ -81,7 +88,7 @@ export default class Edit extends Component {
                     </div>
 
                     <div className="form-group">
-                        <input type="submit" value="Editar Estudante" className="btn btn-primary" />
+                        <input type="submit"  value="Editar Estudante" className="btn btn-primary" />
                     </div>
                 </form>
 
@@ -89,3 +96,5 @@ export default class Edit extends Component {
         )
     }
 }
+
+export default EditPage
