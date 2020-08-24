@@ -1,7 +1,14 @@
 import React, { Component } from 'react'
-import axios from 'axios'
 
-export default class Create extends Component {
+import FirebaseContext from '../utils/FirebaseContext'
+
+const CreatePage = () => (
+    <FirebaseContext.Consumer>
+        { contexto => <Create firebase={contexto}/>}
+    </FirebaseContext.Consumer>
+)
+
+class Create extends Component {
 
     constructor(props) {
         super(props)
@@ -28,26 +35,18 @@ export default class Create extends Component {
 
     onSubmit(e){
         e.preventDefault()
-        /*console.log('Nome: ' + this.state.nome)
-        console.log('Curso: ' + this.state.curso)
-        console.log('IRA: ' + this.state.IRA)*/
-
-        const novoEstudante = {nome:this.state.nome, 
-                               curso:this.state.curso,
-                               IRA:this.state.IRA}
-
-        axios.post('http://localhost:3002/estudantes/register',novoEstudante) //express
-        //axios.post('http://localhost:3001/estudantes',novoEstudante) //json-server
-        .then(
-            (res)=>{
-                console.log('Estudante '+res.data._id+' inserido com sucesso.')    
+        
+        this.props.firebase.getFirestore().collection('estudantes').add(
+            {
+                nome: this.state.nome,
+                curso: this.state.curso,
+                IRA: this.state.IRA
             }
         )
-        .catch(
-            (error)=>{
-                console.log(error)
-            }
-        )
+        .then(() => console.log(`Estudante ${this.state.nome} foi adicionado com sucesso.`))
+        .catch(error => console.log(error))
+        
+    
 
         this.setState({ nome: '', curso: '', IRA: '' })
     }
@@ -83,3 +82,5 @@ export default class Create extends Component {
         )
     }
 }
+
+export default CreatePage

@@ -15,7 +15,6 @@ class List extends Component {
     constructor(props){
         super(props)
         this.state = {estudantes:[]}
-        this.apagarElementoPorId = this.apagarElementoPorId.bind(this)
     }
 
     componentDidMount(){
@@ -47,21 +46,11 @@ class List extends Component {
             (est,i)=>{
                 return <TableRow estudante={est} 
                                  key={i} 
-                                 apagarElementoPorId={this.apagarElementoPorId}
                                  firebase={this.props.firebase}/>
             }
         )
     }
 
-    apagarElementoPorId(id){
-        let tempEstudantes = this.state.estudantes
-        for(let i=0;i<tempEstudantes.length;i++){
-            if(tempEstudantes[i]._id === id){
-                tempEstudantes.splice(i,1)
-            } 
-        }
-        this.setState({estudantes:tempEstudantes})
-    }
 
     render() {
         return (
