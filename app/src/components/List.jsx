@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-
+import FirebaseServices from '../services/FirebaseService'
 import TableRow from './TableRow'
 
 import FirebaseContext from '../utils/FirebaseContext'
@@ -14,31 +14,27 @@ class List extends Component {
 
     constructor(props) {
         super(props)
+        this._isMounted = false
         this.state = { estudantes: [], loading: false }
     }
 
     componentDidMount() { 
+        this._isMounted = true
         this.setState({loading: true})
-        this.ref = this.props.firebase.getFirestore().collection('estudantes')
-        this.ref.onSnapshot(this.popularEstudantes.bind(this))
+        FirebaseServices.list(
+            this.props.firebase.getFirestore(),
+            (estudantes) => {
+                if(estudantes){
+                    if(this._isMounted){
+                        this.setState({estudantes:estudantes, loading: false})
+                    }
+                }
+            }
+        )
     }
 
-    popularEstudantes(query) {
-        let estudantes = []
-        query.forEach(
-            (doc) => {
-                const { nome, curso, IRA } = doc.data()
-                estudantes.push(
-                    {
-                        _id: doc.id,
-                        nome,
-                        curso,
-                        IRA
-                    }
-                )//push de estudantes
-            }//doc
-        )//for Each
-        this.setState({ estudantes: estudantes, loading: false })
+    componentWillUnmount(){
+        this._isMounted = false
     }
 
     montarTabela() {
