@@ -35,16 +35,49 @@ export default class FirebaseService {
             .catch(error=>callback('Não ok'))
     }
 
-    static create = () => {
-
+    static create = (firestore, callback, estudante) => {
+        
+        firestore.collection('estudantes').add(
+            {
+                nome: estudante.nome,
+                curso: estudante.curso,
+                IRA: estudante.IRA
+            }
+        )
+        .then(() => callback('Ok'))
+        .catch(error => callback('Não ok'))
     }
 
-    static retrieve = () => {
-
+    static retrieve = (firestore, callback, id) => {
+        
+        firestore.collection('estudantes').doc(id).get()
+        .then(
+            (doc) => {
+                callback(
+                    {
+                        nome: doc.data().nome,
+                        curso: doc.data().curso,
+                        IRA: doc.data().IRA
+                    }
+                )
+            }
+        )
+        .catch(error => callback(null))
     }
 
-    static edit = () => {
-
+    static edit = (firestore, callback, estudante, id) => {
+        
+        firestore.collection('estudantes').doc(id).set(
+            {
+                nome: estudante.nome,
+                curso: estudante.curso,
+                IRA: estudante.IRA
+            }
+        )
+        .then(
+            () =>  callback('Ok'),
+        )
+        .catch(error => callback('Nao ok'))
     }
 
 

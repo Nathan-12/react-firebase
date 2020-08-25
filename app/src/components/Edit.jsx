@@ -1,6 +1,7 @@
 import React, { Component } from 'react'
 
 import FirebaseContext from '../utils/FirebaseContext'
+import FirebaseService from '../services/FirebaseService'
 
 const EditPage = (props) => (
     <FirebaseContext.Consumer>
@@ -22,17 +23,20 @@ class Edit extends Component {
     }
 
     componentDidMount(){
-        this.props.firebase.getFirestore().collection('estudantes').doc(this.props.id).get()
-        .then(
-            (doc) => {
-                this.setState({
-                    nome: doc.data().nome,
-                    curso: doc.data().curso,
-                    IRA: doc.data().IRA
-                })
-            }
+
+        FirebaseService.retrieve(
+            this.props.firebase.getFirestore(),
+            (estudante) => {
+                if(estudante)
+                    this.setState({
+                        nome: estudante.nome,
+                        curso: estudante.curso,
+                        IRA: estudante.IRA
+                    })
+            },
+            this.props.id
         )
-        .catch(error => console.log(error))
+        
     }
 
     setNome(e) {
@@ -49,20 +53,23 @@ class Edit extends Component {
 
     onSubmit(e){
         e.preventDefault()
+
+        const estudante = {
+            nome: this.state.nome,
+            curso: this.state.curso,
+            IRA: this.state.IRA
+        } 
         
-        this.props.firebase.getFirestore().collection('estudantes').doc(this.props.id).set(
-            {
-                nome: this.state.nome,
-                curso: this.state.curso,
-                IRA: this.state.IRA
-            }
+        FirebaseService.edit(
+            this.props.firebase.getFirestore(),
+            (mensagem) => {
+                if(mensagem === 'Ok')
+                    console.log('Estudante atualizado com sucesso')
+            },
+            estudante,
+            this.props.id
         )
-        .then(
-            () =>  console.log("Atualização de dados feita com sucesso."),
-        )
-        .catch(error => console.log(error))
-        
-        
+        this.setState({ nome: '', curso: '', IRA: '' })
     }
 
     render() {

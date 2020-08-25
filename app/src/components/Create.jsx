@@ -1,6 +1,7 @@
 import React, { Component } from 'react'
 
 import FirebaseContext from '../utils/FirebaseContext'
+import FirebaseServices from '../services/FirebaseService'
 
 const CreatePage = () => (
     <FirebaseContext.Consumer>
@@ -35,19 +36,21 @@ class Create extends Component {
 
     onSubmit(e){
         e.preventDefault()
-        
-        this.props.firebase.getFirestore().collection('estudantes').add(
-            {
-                nome: this.state.nome,
-                curso: this.state.curso,
-                IRA: this.state.IRA
-            }
-        )
-        .then(() => console.log(`Estudante ${this.state.nome} foi adicionado com sucesso.`))
-        .catch(error => console.log(error))
-        
-    
 
+        const estudante = {
+            nome: this.state.nome,
+            curso: this.state.curso,
+            IRA: this.state.IRA
+        } 
+        
+        FirebaseServices.create(
+            this.props.firebase.getFirestore(),
+            (mensagem) => {
+                if(mensagem === 'Ok') 
+                    console.log(`Estudante ${estudante.nome} adicionado com sucesso.`)
+            },
+            estudante
+            )
         this.setState({ nome: '', curso: '', IRA: '' })
     }
 
